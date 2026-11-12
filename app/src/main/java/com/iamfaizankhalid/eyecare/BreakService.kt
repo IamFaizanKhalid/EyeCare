@@ -131,13 +131,13 @@ class BreakService : Service() {
                 } else if (remaining <= WARNING_FIFTEEN_SECONDS_MS && !warnedFifteenSeconds) {
                     warnedFifteenSeconds = true
                     warnedOneMinute = true
-                    showWarning("Break in 15 seconds", 3_500L)
+                    showWarning("Break in 15 seconds", 5_000L)
                 } else if (remaining <= WARNING_ONE_MINUTE_MS && !warnedOneMinute) {
                     warnedOneMinute = true
                     val seconds = (remaining / 1000L).toInt()
                     showWarning(
                         if (seconds >= 50) "Break in 1 minute" else "Break in $seconds seconds",
-                        4_000L,
+                        6_000L,
                     )
                 }
             }
