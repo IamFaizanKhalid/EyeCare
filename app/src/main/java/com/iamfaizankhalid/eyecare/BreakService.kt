@@ -388,7 +388,11 @@ class BreakService : Service() {
         if (!Settings.canDrawOverlays(this)) return false
 
         dismissWarning()
-        if (!preview) pauseUsage()
+        if (!preview) {
+            pauseUsage()
+            // Silence the screen's content too; playback is never resumed by EyeCare.
+            MediaPauser.pausePlaying(this)
+        }
 
         breakShowing = true
         breakIsPreview = preview

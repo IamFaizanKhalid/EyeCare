@@ -32,6 +32,7 @@ no ads, no internet.
   session starts fresh.
 - 📱 **Looks right everywhere.** Works in portrait and landscape.
 - 🧭 **Won’t interrupt navigation.** Breaks are skipped while Google Maps or Waze is navigating.
+- ⏸️  **Pauses foreground media when a break starts.** Playback stays paused, so you actually look away.
 - 🔁 **Survives restarts.** Protection comes back after a reboot.
 - 🚫 **No ads. No accounts. No tracking. No internet permission.**
 
