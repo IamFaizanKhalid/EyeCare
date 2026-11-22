@@ -33,6 +33,7 @@ class MainActivity : Activity() {
     private lateinit var actionButton: TextView
     private lateinit var overlayValue: TextView
     private lateinit var notificationValue: TextView
+    private lateinit var navigationValue: TextView
     private lateinit var batteryValue: TextView
     private lateinit var skipSwitch: Switch
 
@@ -164,6 +165,13 @@ class MainActivity : Activity() {
         ) { openNotificationSettings() }
         notificationValue = notificationRow.second
         root.addView(notificationRow.first, matchWrap(top = 8))
+
+        val navigationRow = permissionRow(
+            "Skip during navigation",
+            "Optional: no breaks while Maps or Waze is navigating",
+        ) { openNavigationSettings() }
+        navigationValue = navigationRow.second
+        root.addView(navigationRow.first, matchWrap(top = 8))
 
         val batteryRow = permissionRow(
             "Unrestricted background",
@@ -438,6 +446,7 @@ class MainActivity : Activity() {
                     checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) ==
                     PackageManager.PERMISSION_GRANTED)
         setPermissionValue(notificationValue, notificationsOn)
+        setPermissionValue(navigationValue, NavigationMonitor.isAccessGranted(this))
 
         val powerManager = getSystemService(PowerManager::class.java)
         setPermissionValue(
@@ -537,6 +546,20 @@ class MainActivity : Activity() {
         val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
             .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
         launchSettings(intent, "Open Settings → Apps → EyeCare → Notifications.")
+    }
+
+    private fun openNavigationSettings() {
+        if (NavigationMonitor.isAccessGranted(this)) {
+            launchSettings(
+                Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS),
+                "Open Settings → Notifications → Notification access.",
+            )
+            return
+        }
+        launchSettings(
+            Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS),
+            "Open Settings → Notifications → Notification access, then allow EyeCare.",
+        )
     }
 
     private fun openBatterySettings() {

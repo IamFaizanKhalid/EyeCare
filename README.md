@@ -31,6 +31,7 @@ no ads, no internet.
 - 🔄 **Resets when you step away.** If the phone stays locked for 5 minutes or more, the next
   session starts fresh.
 - 📱 **Looks right everywhere.** Works in portrait and landscape.
+- 🧭 **Won’t interrupt navigation.** Breaks are skipped while Google Maps or Waze is navigating.
 - 🔁 **Survives restarts.** Protection comes back after a reboot.
 - 🚫 **No ads. No accounts. No tracking. No internet permission.**
 
@@ -65,6 +66,7 @@ they do:
 | **Display over other apps** | Lets the break screen appear above other apps. **Required.** |
 | **Notifications** | Android requires an ongoing notification for apps that run in the background. EyeCare only shows its status there. |
 | **Unrestricted background** | Asks Android not to freeze the timer. **Recommended** for accurate 20-minute cycles. |
+| **Skip during navigation** *(optional)* | Lets EyeCare pause breaks while a navigation app is active. Needs notification access, used only to detect an ongoing navigation notification. |
 
 Button names vary a little between phone brands — look for the closest match.
 
@@ -110,6 +112,10 @@ EyeCare is deliberately boring about data:
 Make sure **Protection is on**, **Display over other apps** is allowed, and EyeCare is not being
 battery-restricted. On Xiaomi/Redmi/Poco, also enable **Autostart**; on Samsung, make sure EyeCare
 is not in **Sleeping apps**.
+
+**Will it interrupt me while I’m driving?**
+No. With **Skip during navigation** enabled, EyeCare watches for an ongoing navigation notification
+from apps like Google Maps and Waze and starts a fresh cycle instead of covering the screen.
 
 **Does locking my phone reset the timer?**
 Only if it stays locked for **5 minutes or more**. Short lock/unlock gaps resume where you left off.
@@ -200,6 +206,7 @@ app/src/main/java/com/iamfaizankhalid/eyecare/
 ├── BreakService.kt      timer, foreground service, overlay, warnings, notification
 ├── MainActivity.kt      onboarding, permissions, controls, status
 ├── CountdownRingView.kt custom countdown ring
+├── NavigationMonitor.kt detects active navigation notifications
 ├── ServiceState.kt      in-process state shared with the UI
 ├── Ui.kt                colors and small UI helpers
 └── BootReceiver.kt      restart after reboot

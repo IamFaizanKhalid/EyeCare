@@ -6,11 +6,13 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.app.UiModeManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.graphics.Typeface
 import android.os.Build
@@ -115,15 +117,23 @@ class BreakService : Service() {
     private var screenOffAt = 0L
     private var lastPersistAt = 0L
     private var nextOverlayAttemptAt = 0L
+    private lateinit var uiModeManager: UiModeManager
 
     private val ticker = object : Runnable {
         override fun run() {
             if (!enabled) return
 
             val now = SystemClock.elapsedRealtime()
+            val navigating = navigationActive()
             if (!breakShowing && running) {
                 val remaining = SESSION_MS - accumulated()
-                if (remaining <= 0L) {
+                if (navigating) {
+                    // Never interrupt navigation. Start a fresh cycle instead of breaking.
+                    if (remaining <= 0L) {
+                        resetUsage()
+                        startUsage()
+                    }
+                } else if (remaining <= 0L) {
                     if (now >= nextOverlayAttemptAt) {
                         nextOverlayAttemptAt = now + 10_000L
                         showBreak(preview = false)
@@ -141,6 +151,9 @@ class BreakService : Service() {
                     )
                 }
             }
+
+            if (breakShowing && navigating) finishBreak()
+            if (warningView != null && navigating) dismissWarning()
 
             publish()
 
@@ -192,6 +205,7 @@ class BreakService : Service() {
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         powerManager = getSystemService(POWER_SERVICE) as PowerManager
         keyguardManager = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
+        uiModeManager = getSystemService(UI_MODE_SERVICE) as UiModeManager
         notificationManager = getSystemService(NotificationManager::class.java)
 
         // Restore recent progress if the process was restarted.
@@ -327,6 +341,10 @@ class BreakService : Service() {
 
     private fun accumulated(): Long =
         accumulatedMs + if (running) SystemClock.elapsedRealtime() - segmentStart else 0L
+
+    private fun navigationActive(): Boolean =
+        NavigationMonitor.isNavigating() ||
+            uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_CAR
 
     private fun saveUsage() {
         prefs.edit().putLong(KEY_USAGE, accumulated()).apply()
