@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img alt="Android 8.0+" src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white">
+  <img alt="Android 9.0+" src="https://img.shields.io/badge/Android-9.0%2B-3DDC84?logo=android&logoColor=white">
   <img alt="About 1 MB" src="https://img.shields.io/badge/size-~1%20MB-blue">
   <img alt="No internet required" src="https://img.shields.io/badge/internet-not%20required-success">
   <img alt="No ads" src="https://img.shields.io/badge/ads-none-lightgrey">
