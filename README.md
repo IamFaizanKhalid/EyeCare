@@ -90,11 +90,17 @@ whenever you want a pause.
 **Skipping** is off by default. Turn on **Allow skipping** in the app if you want a **Skip break**
 button on the break screen. Skipping still starts a fresh 20-minute cycle.
 
+Breaks also **pause whatever is playing**, so you actually look away — playback stays paused afterwards.
+Prefer your video to keep running? Turn off **Pause media on breaks**. Likewise, **Skip during
+navigation** can be switched off if you want breaks even while driving.
+
 ## ⚙️ Settings
 
 | Setting | What it does |
 |---|---|
 | **Start / Stop protection** | Turns the 20-minute cycle on or off. |
+| **Pause media on breaks** | Pauses video/audio playback when the break screen appears. On by default. EyeCare never resumes it. |
+| **Skip during navigation** | Suppresses breaks while Maps or Waze is navigating. On by default. |
 | **Allow skipping** | Shows a **Skip break** button on the break screen. Off by default. |
 | **Preview the break screen** | Shows the break screen immediately. |
 | **Unrestricted background** | Opens the battery settings EyeCare needs. |

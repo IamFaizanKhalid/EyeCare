@@ -36,6 +36,8 @@ class MainActivity : Activity() {
     private lateinit var navigationValue: TextView
     private lateinit var batteryValue: TextView
     private lateinit var skipSwitch: Switch
+    private lateinit var mediaSwitch: Switch
+    private lateinit var navigationSkipSwitch: Switch
 
     private val handler = Handler(Looper.getMainLooper())
     private var polling = false
@@ -64,6 +66,12 @@ class MainActivity : Activity() {
         refreshPermissions()
         if (::skipSwitch.isInitialized) {
             skipSwitch.isChecked = BreakService.isSkipAllowed(this)
+        }
+        if (::mediaSwitch.isInitialized) {
+            mediaSwitch.isChecked = BreakService.shouldPauseMedia(this)
+        }
+        if (::navigationSkipSwitch.isInitialized) {
+            navigationSkipSwitch.isChecked = BreakService.shouldSkipNavigation(this)
         }
 
         // If protection is enabled but the process was killed, bring the service back.
@@ -188,12 +196,30 @@ class MainActivity : Activity() {
             matchWrap(top = 28),
         )
 
-        root.addView(
-            toggleRow(
+        val mediaRow = toggleRow(
+            "Pause media on breaks",
+            "Stops video when the break screen appears. It won’t resume it.",
+            BreakService.shouldPauseMedia(this),
+        ) { checked -> BreakService.setPauseMedia(this, checked) }
+        mediaSwitch = mediaRow.second
+        root.addView(mediaRow.first, matchWrap(top = 10))
+
+        val navigationSkipRow = toggleRow(
+            "Skip during navigation",
+            "No breaks while Maps or Waze is navigating",
+            BreakService.shouldSkipNavigation(this),
+        ) { checked -> BreakService.setSkipNavigation(this, checked) }
+        navigationSkipSwitch = navigationSkipRow.second
+        root.addView(navigationSkipRow.first, matchWrap(top = 10))
+
+        val skipRow = toggleRow(
                 "Allow skipping",
                 "Show a Skip button on the break screen",
                 BreakService.isSkipAllowed(this),
-            ) { checked -> BreakService.setAllowSkip(this, checked) },
+            ) { checked -> BreakService.setAllowSkip(this, checked) }
+        skipSwitch = skipRow.second
+        root.addView(
+            skipRow.first,
             matchWrap(top = 10),
         )
 
@@ -342,7 +368,7 @@ class MainActivity : Activity() {
         subtitle: String,
         initial: Boolean,
         onChange: (Boolean) -> Unit,
-    ): View {
+    ): Pair<View, Switch> {
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -376,7 +402,6 @@ class MainActivity : Activity() {
             contentDescription = title
             setOnCheckedChangeListener { _, checked -> onChange(checked) }
         }
-        skipSwitch = toggle
         row.addView(
             toggle,
             LinearLayout.LayoutParams(
@@ -386,7 +411,7 @@ class MainActivity : Activity() {
         )
 
         row.setOnClickListener { toggle.isChecked = !toggle.isChecked }
-        return row
+        return row to toggle
     }
 
     private fun matchWrap(top: Int = 0): LinearLayout.LayoutParams =

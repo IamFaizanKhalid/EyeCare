@@ -61,6 +61,8 @@ class BreakService : Service() {
         private const val KEY_ENABLED = "protection_enabled"
         private const val KEY_USAGE = "usage_ms"
         private const val KEY_ALLOW_SKIP = "allow_skip"
+        private const val KEY_PAUSE_MEDIA = "pause_media"
+        private const val KEY_SKIP_NAVIGATION = "skip_navigation"
 
         private const val CHANNEL_ID = "protection"
         private const val NOTIFICATION_ID = 1
@@ -87,6 +89,28 @@ class BreakService : Service() {
         fun isSkipAllowed(context: Context): Boolean =
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 .getBoolean(KEY_ALLOW_SKIP, false)
+
+        fun setPauseMedia(context: Context, pause: Boolean) {
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_PAUSE_MEDIA, pause)
+                .apply()
+        }
+
+        fun shouldPauseMedia(context: Context): Boolean =
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getBoolean(KEY_PAUSE_MEDIA, true)
+
+        fun setSkipNavigation(context: Context, skip: Boolean) {
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_SKIP_NAVIGATION, skip)
+                .apply()
+        }
+
+        fun shouldSkipNavigation(context: Context): Boolean =
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getBoolean(KEY_SKIP_NAVIGATION, true)
     }
 
     private val handler = Handler(Looper.getMainLooper())
@@ -124,7 +148,7 @@ class BreakService : Service() {
             if (!enabled) return
 
             val now = SystemClock.elapsedRealtime()
-            val navigating = navigationActive()
+            val navigating = skipDuringNavigation() && navigationActive()
             if (!breakShowing && running) {
                 val remaining = SESSION_MS - accumulated()
                 if (navigating) {
@@ -342,6 +366,9 @@ class BreakService : Service() {
     private fun accumulated(): Long =
         accumulatedMs + if (running) SystemClock.elapsedRealtime() - segmentStart else 0L
 
+    private fun skipDuringNavigation(): Boolean =
+        prefs.getBoolean(KEY_SKIP_NAVIGATION, true)
+
     private fun navigationActive(): Boolean =
         NavigationMonitor.isNavigating() ||
             uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_CAR
@@ -391,7 +418,7 @@ class BreakService : Service() {
         if (!preview) {
             pauseUsage()
             // Silence the screen's content too; playback is never resumed by EyeCare.
-            MediaPauser.pausePlaying(this)
+            if (shouldPauseMedia(this)) MediaPauser.pausePlaying(this)
         }
 
         breakShowing = true
